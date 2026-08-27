@@ -1,0 +1,18 @@
+{
+  "name": "decibel-installer",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "One-click installers for Decibel — MCPB bundle for Claude Desktop, native installer for everything else.",
+  "license": "MIT",
+  "decibel": {
+    "serverVersion": "2.1.4"
+  },
+  "scripts": {
+    "build": "node build/build.mjs",
+    "build:fast": "node build/build.mjs --skip-install",
+    "validate": "npx --yes @anthropic-ai/mcpb validate manifest.json",
+    "icon": "cairosvg assets/icon.svg -o icon.png -W 512 -H 512",
+    "test": "node --test test/*.test.mjs"
+  }
+}

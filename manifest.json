@@ -1,0 +1,70 @@
+{
+  "manifest_version": "0.3",
+  "name": "decibel-tools",
+  "display_name": "Decibel",
+  "version": "2.1.4",
+  "description": "Project intelligence for Claude — issues, decisions, roadmap, and design tracking that live in your repo.",
+  "long_description": "Decibel gives Claude a durable memory for your project. Track work as epics and issues, record architecture decisions as ADRs, capture design decisions and recurring friction, and ask what to work on next.\n\nPrivacy: everything is written as plain files inside a .decibel/ folder in the project directory you choose. Nothing is uploaded, there is no telemetry, and the files read as a normal part of your repo.",
+  "author": {
+    "name": "Decibel Systems",
+    "url": "https://github.com/decibelsystems"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/decibelsystems/decibel-installer.git"
+  },
+  "support": "https://github.com/decibelsystems/decibel-installer/issues",
+  "icon": "icon.png",
+  "license": "MIT",
+  "keywords": [
+    "project-management",
+    "issues",
+    "adr",
+    "roadmap",
+    "documentation"
+  ],
+  "server": {
+    "type": "node",
+    "entry_point": "server/bootstrap.mjs",
+    "mcp_config": {
+      "command": "node",
+      "args": [
+        "${__dirname}/server/bootstrap.mjs"
+      ],
+      "env": {
+        "NODE_ENV": "production",
+        "DECIBEL_PROJECT_ROOT": "${user_config.project_folder}",
+        "DECIBEL_REGISTRY_PATH": "${HOME}/.decibel/projects.json",
+        "DECIBEL_FACADES": "sentinel,architect,dojo,designer,oracle,roadmap,friction,workflow,git,context,decibel,registry",
+        "DECIBEL_LICENSE_KEY": "${user_config.license_key}"
+      }
+    }
+  },
+  "tools_generated": true,
+  "user_config": {
+    "project_folder": {
+      "type": "directory",
+      "title": "Project folder",
+      "description": "The folder Decibel should track. Pick your project — Decibel sets it up automatically the first time it runs.",
+      "required": true,
+      "default": "${HOME}/Documents"
+    },
+    "license_key": {
+      "type": "string",
+      "title": "License key (optional)",
+      "description": "Unlocks Pro features. Leave blank to use the free tier.",
+      "sensitive": true,
+      "required": false
+    }
+  },
+  "compatibility": {
+    "claude_desktop": ">=1.0.0",
+    "platforms": [
+      "darwin",
+      "win32"
+    ],
+    "runtimes": {
+      "node": ">=18.0.0"
+    }
+  }
+}

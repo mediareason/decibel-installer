@@ -1,0 +1,7 @@
+node_modules/
+server/node_modules/
+server/package.json
+server/package-lock.json
+dist/
+*.mcpb
+.DS_Store

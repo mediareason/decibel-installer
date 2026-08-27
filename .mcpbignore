@@ -1,0 +1,9 @@
+# Excluded from the packed .mcpb
+.git/
+.github/
+assets/
+build/
+test/
+dist/
+*.mcpb
+.DS_Store
