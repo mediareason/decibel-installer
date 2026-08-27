@@ -21,6 +21,28 @@ import { createRequire } from 'node:module';
 const log = (msg) => process.stderr.write(`[decibel-bootstrap] ${msg}\n`);
 
 /**
+ * Drop env vars the host failed to substitute.
+ *
+ * The manifest's env values are templates like ${user_config.project_folder}. If a
+ * host doesn't substitute one — an optional setting left blank, a variable it
+ * doesn't implement, a platform difference — the literal template string is passed
+ * through. Downstream that reads as a real value: a project root named
+ * "${user_config.project_folder}", or a garbage license key sent to the validator.
+ * An unset var is always better than a nonsense one, since every consumer here has
+ * a sane default. Empty strings go too, for the same reason.
+ */
+function dropUnsubstituted() {
+  for (const [key, value] of Object.entries(process.env)) {
+    if (!key.startsWith('DECIBEL_') && key !== 'NODE_ENV') continue;
+    if (typeof value !== 'string') continue;
+    if (value === '' || value.includes('${')) {
+      log(`ignoring ${key} — value was not substituted by the host`);
+      delete process.env[key];
+    }
+  }
+}
+
+/**
  * Mirrors DECIBEL_STRUCTURE in the server's src/tools/registry/index.ts.
  * build/build.mjs asserts this list still matches the packaged server, so a
  * server-side change to the layout fails the bundle build instead of silently
@@ -110,6 +132,8 @@ function ensureRegistered(projectRoot, projectId, registryPath) {
 }
 
 function main() {
+  dropUnsubstituted();
+
   const projectRoot = process.env.DECIBEL_PROJECT_ROOT;
 
   // Only bootstrap when we've been given a real folder. If the user hasn't set one

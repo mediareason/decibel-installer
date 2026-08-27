@@ -34,7 +34,6 @@
       "env": {
         "NODE_ENV": "production",
         "DECIBEL_PROJECT_ROOT": "${user_config.project_folder}",
-        "DECIBEL_REGISTRY_PATH": "${HOME}/.decibel/projects.json",
         "DECIBEL_FACADES": "sentinel,architect,dojo,designer,oracle,roadmap,friction,workflow,git,context,decibel,registry",
         "DECIBEL_LICENSE_KEY": "${user_config.license_key}"
       }

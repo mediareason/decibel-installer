@@ -25,7 +25,7 @@ const FORBIDDEN = ['terminal', 'senken', 'mother', 'deck', 'voice', 'studio', 'c
  * Resolve the manifest's env the way the MCPB host does, substituting
  * ${__dirname}, ${HOME} and ${user_config.*}.
  */
-function resolveEnv({ projectFolder, home }) {
+function resolveEnv({ projectFolder, home, substitute = true }) {
   const subs = {
     '${__dirname}': ROOT,
     '${HOME}': home,
@@ -34,8 +34,16 @@ function resolveEnv({ projectFolder, home }) {
   };
   const out = {};
   for (const [k, v] of Object.entries(MANIFEST.server.mcp_config.env)) {
-    out[k] = Object.entries(subs).reduce((s, [from, to]) => s.split(from).join(to), v);
+    out[k] = substitute
+      ? Object.entries(subs).reduce((s, [from, to]) => s.split(from).join(to), v)
+      : v; // simulate a host that fails to substitute
   }
+
+  // The manifest deliberately does NOT set DECIBEL_REGISTRY_PATH — both the server
+  // and bootstrap fall back to os.homedir(), which is correct on Windows too.
+  // Point homedir at the sandbox so tests never touch the real ~/.decibel.
+  out.HOME = home;
+  out.USERPROFILE = home;
   return out;
 }
 
@@ -142,6 +150,29 @@ test('bootstraps an empty folder and exposes only the allowlisted facades', asyn
   await t.test('writes nothing but JSON-RPC to stdout', () => {
     assert.doesNotMatch(stderr, /^\s*$/, 'expected bootstrap diagnostics on stderr');
   });
+});
+
+test('survives a host that fails to substitute manifest variables', async (t) => {
+  // Guards the Windows risk: if the host doesn't resolve ${user_config.*} or
+  // ${HOME}, the literal template string is passed through. Bootstrap must ignore
+  // those rather than create a folder named "${user_config.project_folder}" or
+  // send a garbage license key to the validator. The server should still boot.
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'decibel-bundle-'));
+  const home = path.join(tmp, 'home');
+  fs.mkdirSync(home);
+  t.after(() => fs.rmSync(tmp, { recursive: true, force: true }));
+
+  const env = resolveEnv({ projectFolder: '', home, substitute: false });
+  env.HOME = home;
+  env.USERPROFILE = home;
+
+  const { tools, stderr } = await listTools(env);
+
+  assert.ok(tools.length > 0, `server did not boot.\nstderr:\n${stderr}`);
+  assert.match(stderr, /not substituted by the host/, 'guard did not fire');
+
+  const stray = fs.readdirSync(tmp).filter((n) => n.includes('$'));
+  assert.deepEqual(stray, [], `created a folder from an unsubstituted template: ${stray}`);
 });
 
 test('is idempotent on an already-initialized folder', async (t) => {
