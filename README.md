@@ -6,7 +6,7 @@ One-click install for [Decibel](https://github.com/decibelsystems/decibel-tools-
 
 ## Install (Claude Desktop)
 
-**1.** Download **`decibel.mcpb`** from [the latest release](https://github.com/decibelsystems/decibel-installer/releases/latest).
+**1.** Download **`decibel.mcpb`** from [the latest release](https://github.com/mediareason/decibel-installer/releases/latest).
 
 **2.** Double-click it. Claude Desktop opens and asks you to confirm.
 

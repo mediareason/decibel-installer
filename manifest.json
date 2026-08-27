@@ -11,9 +11,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/decibelsystems/decibel-installer.git"
+    "url": "https://github.com/mediareason/decibel-installer.git"
   },
-  "support": "https://github.com/decibelsystems/decibel-installer/issues",
+  "support": "https://github.com/mediareason/decibel-installer/issues",
   "icon": "icon.png",
   "license": "MIT",
   "keywords": [
