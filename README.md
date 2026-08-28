@@ -37,6 +37,44 @@ Changing the project folder requires a full quit and reopen.
 
 ---
 
+## Windows: Microsoft Store build
+
+If you installed Claude Desktop from the **Microsoft Store**, extensions fail with
+"Server disconnected" no matter what is in the bundle. This is an upstream Claude
+Desktop bug, not something an extension can fix.
+
+The Store build is MSIX-packaged, which virtualizes `%APPDATA%`. Extensions
+physically land under:
+
+```
+C:\Users\<you>\AppData\Local\Packages\Claude_pzs8sxrjxfjjc\LocalCache\Roaming\Claude\
+```
+
+but `${__dirname}` is handed to the spawned server as the *virtual* path
+(`%APPDATA%\Claude\...`). Child processes run outside the container, so that path
+does not exist for them and the server dies instantly — surfacing as
+`MODULE_NOT_FOUND` or "Server disconnected". Tracked upstream as
+[anthropics/claude-code#47977](https://github.com/anthropics/claude-code/issues/47977).
+
+**Fix A — pre-create the real directory, then reinstall.** Creating the folder
+before installing stops MSIX from virtualizing it:
+
+```powershell
+New-Item -ItemType Directory -Path "$env:APPDATA\Claude\Claude Extensions" -Force
+```
+
+Then uninstall and reinstall the extension, and fully quit Claude Desktop.
+
+**Fix B — use the direct download instead of the Store build.** The installer at
+[claude.com/download](https://claude.com/download) is not MSIX-packaged and does not
+have this problem.
+
+To check which build you have, look for a
+`AppData\Local\Packages\Claude_pzs8sxrjxfjjc` folder — if it exists, you are on
+the Store build.
+
+---
+
 ## Why a bundle instead of editing a config file
 
 The documented way to add a local MCP server is to hand-edit `claude_desktop_config.json`. It fails often and fails silently:
