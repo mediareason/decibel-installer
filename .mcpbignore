@@ -1,9 +1,5 @@
-# Excluded from the packed .mcpb
-.git/
-.github/
-assets/
-build/
-test/
-dist/
-*.mcpb
+# Packing now uses an explicit allowlist staged by build/build.mjs, so this file
+# is a backstop only. Patterns here match at ANY depth — an unanchored "dist/"
+# once stripped the entire server out of the bundle. Do not add bare directory
+# names that also occur inside node_modules.
 .DS_Store

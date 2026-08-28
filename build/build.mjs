@@ -158,10 +158,54 @@ assertStructureInSync();
 step('Validating manifest');
 run('npx', ['--yes', '@anthropic-ai/mcpb', 'validate', 'manifest.json']);
 
+// Pack from a clean staging directory containing exactly what should ship.
+//
+// The previous approach packed the repo root and relied on .mcpbignore to subtract
+// what shouldn't ship. That is a trap: an ignore entry of "dist/" matches at ANY
+// depth, so it silently deleted server/node_modules/@decibelsystems/tools/dist/ —
+// the entire server — along with 29 dependencies' dist/ folders. The bundle shipped
+// as a hollow shell for three releases. An allowlist cannot fail that way.
+step('Staging bundle contents');
+const STAGE = path.join(ROOT, 'build', '.staging');
+fs.rmSync(STAGE, { recursive: true, force: true });
+fs.mkdirSync(STAGE, { recursive: true });
+
+const SHIP = ['manifest.json', 'icon.png', 'LICENSE', 'README.md'];
+for (const f of SHIP) fs.cpSync(path.join(ROOT, f), path.join(STAGE, f));
+fs.cpSync(path.join(SERVER_DIR, 'bootstrap.mjs'), path.join(STAGE, 'server', 'bootstrap.mjs'));
+fs.cpSync(
+  path.join(SERVER_DIR, 'node_modules'),
+  path.join(STAGE, 'server', 'node_modules'),
+  { recursive: true, dereference: true }
+);
+console.log(`  staged ${SHIP.length + 2} entries`);
+
+// The failure this build previously shipped: the server's own entry file missing.
+// Assert the manifest's entry point exists AND that it can resolve the server.
+step('Verifying staged tree');
+const stagedEntry = path.join(STAGE, manifest.server.entry_point);
+if (!fs.existsSync(stagedEntry)) {
+  throw new Error(`manifest entry_point not in the bundle: ${manifest.server.entry_point}`);
+}
+const stagedPkgJson = path.join(STAGE, 'server/node_modules', PKG, 'package.json');
+if (!fs.existsSync(stagedPkgJson)) throw new Error(`${PKG} missing from the staged bundle`);
+const stagedMain = path.join(
+  path.dirname(stagedPkgJson),
+  JSON.parse(fs.readFileSync(stagedPkgJson, 'utf8')).main
+);
+if (!fs.existsSync(stagedMain)) {
+  throw new Error(
+    `${PKG} package.json points at "${path.relative(path.dirname(stagedPkgJson), stagedMain)}" ` +
+    'but that file is not in the bundle — the server would fail to load at runtime.'
+  );
+}
+console.log(`  entry point + server main both present`);
+
 step('Packing bundle');
 fs.mkdirSync(path.join(ROOT, 'dist'), { recursive: true });
 const out = path.join('dist', `decibeltools-${version}.mcpb`);
-run('npx', ['--yes', '@anthropic-ai/mcpb', 'pack', '.', out]);
+run('npx', ['--yes', '@anthropic-ai/mcpb', 'pack', STAGE, out]);
+fs.rmSync(STAGE, { recursive: true, force: true });
 
 const sizeMb = (fs.statSync(path.join(ROOT, out)).size / 1024 / 1024).toFixed(1);
 console.log(`\n\x1b[32m✓ ${out} (${sizeMb} MB)\x1b[0m\n`);
