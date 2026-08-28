@@ -5,3 +5,8 @@ server/package-lock.json
 dist/
 *.mcpb
 .DS_Store
+
+# Tauri app
+app/node_modules/
+app/dist/
+app/src-tauri/target/
