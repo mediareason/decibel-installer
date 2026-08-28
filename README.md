@@ -51,7 +51,9 @@ None of these tell you what went wrong. The `.mcpb` bundle removes the entire cl
 
 ## What's in the bundle
 
-The bundle pins a published version of `@decibelsystems/tools` (currently **2.1.4** — see `decibel.serverVersion` in `package.json`) and ships it with its production dependencies. Packed size is about **2.6 MB**.
+The bundle pins a published version of `@decibelsystems/tools` (see `decibel.serverVersion` in `package.json`) and ships it with its production dependencies. Packed size is about **2.6 MB**.
+
+**Two version numbers, deliberately.** `version` in `package.json` is the *bundle's* version — what users see and upgrade past. `decibel.serverVersion` is the pinned server inside it. They move independently because bundle-only fixes happen: v2.1.4 shipped a Windows boot bug in `bootstrap.mjs` around a perfectly good server. The build stamps the bundle version into the manifest and appends the server version to the description, so a shipped bundle always says what's in it.
 
 It deliberately exposes a **reduced tool surface** — 11 facades covering work tracking, decisions, design, and roadmap — rather than all 34 the server implements. Two reasons:
 
@@ -73,7 +75,7 @@ npm run icon         # re-render icon.png from assets/icon.svg (needs cairosvg)
 
 ### Bumping the server version
 
-Change `decibel.serverVersion` in `package.json` and run `npm run build`. The build stamps `manifest.json`'s version from that one value, so the two can't drift.
+Change `decibel.serverVersion` in `package.json`, bump `version` too, and run `npm run build`. For a bundle-only fix, bump `version` alone.
 
 The build also asserts that the `.decibel/` folder layout hardcoded in `server/bootstrap.mjs` still matches `DECIBEL_STRUCTURE` in the packaged server — if the server changes its layout, the build fails loudly instead of quietly producing a project skeleton the tools don't recognise.
 

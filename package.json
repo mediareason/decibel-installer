@@ -1,9 +1,9 @@
 {
   "name": "decibel-installer",
-  "version": "0.1.0",
+  "version": "2.1.5",
   "private": true,
   "type": "module",
-  "description": "One-click installers for Decibel — MCPB bundle for Claude Desktop, native installer for everything else.",
+  "description": "One-click installers for Decibel \u2014 MCPB bundle for Claude Desktop, native installer for everything else.",
   "license": "MIT",
   "decibel": {
     "serverVersion": "2.1.4"

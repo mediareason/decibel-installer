@@ -6,7 +6,7 @@
  *
  * Steps:
  *   1. Install the pinned @decibelsystems/tools (prod deps only) into server/
- *   2. Stamp manifest.json's version from the pin so the two can't drift
+ *   2. Stamp the bundle version + record the pinned server version
  *   3. Assert the project skeleton in bootstrap.mjs still matches the server
  *   4. Validate the manifest, then pack
  *
@@ -30,12 +30,22 @@ const run = (cmd, args, opts = {}) =>
 
 const step = (msg) => console.log(`\n\x1b[1m▸ ${msg}\x1b[0m`);
 
-/** The pinned server version lives in exactly one place: package.json. */
-function pinnedVersion() {
+/**
+ * Two distinct versions, both from package.json:
+ *
+ *   version               the BUNDLE's own version — what users see and upgrade past
+ *   decibel.serverVersion the pinned @decibelsystems/tools release inside it
+ *
+ * They are separate because bundle-only fixes exist: v2.1.4 shipped a Windows
+ * boot bug in bootstrap.mjs with a perfectly good server inside it, and needed a
+ * new user-facing version without the server changing at all.
+ */
+function versions() {
   const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
-  const pin = pkg.decibel?.serverVersion;
-  if (!pin) throw new Error('package.json is missing decibel.serverVersion');
-  return pin;
+  const server = pkg.decibel?.serverVersion;
+  if (!server) throw new Error('package.json is missing decibel.serverVersion');
+  if (!pkg.version) throw new Error('package.json is missing version');
+  return { bundle: pkg.version, server };
 }
 
 /**
@@ -110,16 +120,16 @@ function assertFacadeAllowlist(manifest) {
 // ---------------------------------------------------------------------------
 
 const skipInstall = process.argv.includes('--skip-install');
-const version = pinnedVersion();
+const { bundle: version, server: serverVersion } = versions();
 
 if (!skipInstall) {
-  step(`Installing ${PKG}@${version} (prod deps only)`);
+  step(`Installing ${PKG}@${serverVersion} (prod deps only)`);
   fs.rmSync(path.join(SERVER_DIR, 'node_modules'), { recursive: true, force: true });
   for (const f of ['package.json', 'package-lock.json']) {
     fs.rmSync(path.join(SERVER_DIR, f), { force: true });
   }
   run('npm', [
-    'install', `${PKG}@${version}`,
+    'install', `${PKG}@${serverVersion}`,
     '--omit=dev', '--prefix', SERVER_DIR,
     '--no-audit', '--no-fund',
   ]);
@@ -131,8 +141,15 @@ step('Stamping manifest version');
 const manifestPath = path.join(ROOT, 'manifest.json');
 const manifest = JSON.parse(fs.readFileSync(manifestPath, 'utf8'));
 manifest.version = version;
+
+// Keep the bundled server version visible to the user. The bundle and the server
+// version move independently, so "which server is in this?" must not need a git log.
+manifest.long_description = manifest.long_description
+  .replace(/\n\nBundled server:.*$/s, '')
+  + `\n\nBundled server: @decibelsystems/tools ${serverVersion}`;
+
 fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
-console.log(`  manifest.version = ${version}`);
+console.log(`  manifest.version = ${version}  (server ${serverVersion})`);
 
 step('Checking bundle safety');
 assertFacadeAllowlist(manifest);

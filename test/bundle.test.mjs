@@ -152,6 +152,31 @@ test('bootstraps an empty folder and exposes only the allowlisted facades', asyn
   });
 });
 
+/**
+ * Windows portability, checked statically because the behaviour cannot be
+ * reproduced on macOS or Linux.
+ *
+ * dynamic import() requires a file:// URL for absolute Windows paths — passing a
+ * native "C:\..." path makes Node parse "C:" as a URL scheme and throw
+ * ERR_UNSUPPORTED_ESM_URL_SCHEME. POSIX paths work unconverted, so this failure is
+ * invisible to the rest of this suite. It shipped once (v2.1.4): the extension
+ * installed cleanly on Windows and exposed no tools at all.
+ */
+test('does not hand a raw filesystem path to dynamic import', () => {
+  const src = fs.readFileSync(path.join(ROOT, 'server', 'bootstrap.mjs'), 'utf8');
+
+  assert.match(src, /pathToFileURL/, 'bootstrap must convert paths to file:// URLs before import()');
+
+  const rawImports = [...src.matchAll(/await import\(([^)]*)\)/g)]
+    .map((m) => m[1].trim())
+    .filter((arg) => !arg.includes('pathToFileURL'));
+
+  assert.deepEqual(
+    rawImports, [],
+    `dynamic import() must take a file:// URL, not a native path. Offending: ${rawImports.join(' | ')}`
+  );
+});
+
 test('survives a host that fails to substitute manifest variables', async (t) => {
   // Guards the Windows risk: if the host doesn't resolve ${user_config.*} or
   // ${HOME}, the literal template string is passed through. Bootstrap must ignore

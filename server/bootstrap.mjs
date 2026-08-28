@@ -17,6 +17,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import os from 'node:os';
 import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
 
 const log = (msg) => process.stderr.write(`[decibel-bootstrap] ${msg}\n`);
 
@@ -171,5 +172,22 @@ main();
 
 // Hand off. The server calls main() at module scope, so importing it boots the
 // stdio transport in this same process — no exec, no stdio re-plumbing.
+//
+// pathToFileURL is load-bearing on Windows and must not be "simplified" away.
+// require.resolve returns a native path; on Windows that is C:\...\server.js, and
+// dynamic import() parses the leading "C:" as a URL scheme and throws
+// ERR_UNSUPPORTED_ESM_URL_SCHEME. POSIX paths happen to work unconverted, which is
+// why this only ever fails on Windows — where it fails totally: the server never
+// boots, so the extension installs fine and then exposes no tools at all.
 const require = createRequire(import.meta.url);
-await import(require.resolve('@decibelsystems/tools'));
+const serverPath = require.resolve('@decibelsystems/tools');
+
+try {
+  await import(pathToFileURL(serverPath).href);
+} catch (err) {
+  // Boot failures are otherwise invisible: Claude Desktop shows the extension as
+  // installed and simply lists no tools. Say what happened somewhere findable.
+  log(`FATAL: could not start the Decibel server from ${serverPath}`);
+  log(`${err?.stack ?? err}`);
+  throw err;
+}

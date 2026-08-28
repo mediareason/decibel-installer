@@ -2,9 +2,9 @@
   "manifest_version": "0.3",
   "name": "decibel-tools",
   "display_name": "Decibel",
-  "version": "2.1.4",
+  "version": "2.1.5",
   "description": "Project intelligence for Claude — issues, decisions, roadmap, and design tracking that live in your repo.",
-  "long_description": "Decibel gives Claude a durable memory for your project. Track work as epics and issues, record architecture decisions as ADRs, capture design decisions and recurring friction, and ask what to work on next.\n\nPrivacy: everything is written as plain files inside a .decibel/ folder in the project directory you choose. Nothing is uploaded, there is no telemetry, and the files read as a normal part of your repo.",
+  "long_description": "Decibel gives Claude a durable memory for your project. Track work as epics and issues, record architecture decisions as ADRs, capture design decisions and recurring friction, and ask what to work on next.\n\nPrivacy: everything is written as plain files inside a .decibel/ folder in the project directory you choose. Nothing is uploaded, there is no telemetry, and the files read as a normal part of your repo.\n\nBundled server: @decibelsystems/tools 2.1.4",
   "author": {
     "name": "Decibel Systems",
     "url": "https://github.com/decibelsystems"
