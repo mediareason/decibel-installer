@@ -1,4 +1,4 @@
-# Decibel Installer
+# Decibel Tools — Installer
 
 One-click install for [Decibel](https://github.com/decibelsystems/decibel-tools-mcp) — project intelligence for Claude.
 
@@ -6,7 +6,7 @@ One-click install for [Decibel](https://github.com/decibelsystems/decibel-tools-
 
 ## Install (Claude Desktop)
 
-**1.** Download **`decibel.mcpb`** from [the latest release](https://github.com/mediareason/decibel-installer/releases/latest).
+**1.** Download **`decibeltools.mcpb`** from [the latest release](https://github.com/mediareason/decibel-installer/releases/latest).
 
 **2.** Double-click it. Claude Desktop opens and asks you to confirm.
 
@@ -26,7 +26,7 @@ A file appears in `.decibel/sentinel/issues/` inside the folder you picked.
 
 ### Settings
 
-Settings → Extensions → Decibel:
+Settings → Extensions → Decibel Tools:
 
 | Setting | What it does |
 |---|---|

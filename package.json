@@ -1,6 +1,6 @@
 {
   "name": "decibel-installer",
-  "version": "2.1.5",
+  "version": "2.1.6",
   "private": true,
   "type": "module",
   "description": "One-click installers for Decibel \u2014 MCPB bundle for Claude Desktop, native installer for everything else.",

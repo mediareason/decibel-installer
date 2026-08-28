@@ -30,19 +30,23 @@ jobs:
       - name: Name the release asset
         id: asset
         run: |
-          src=$(ls dist/*.mcpb | head -1)
-          cp "$src" dist/decibel.mcpb
-          echo "version=$(node -p "require('./package.json').decibel.serverVersion")" >> "$GITHUB_OUTPUT"
+          # Name the versioned artifact explicitly rather than globbing — a stray
+          # .mcpb in dist/ would otherwise decide which file gets published.
+          bundle=$(node -p "require('./package.json').version")
+          server=$(node -p "require('./package.json').decibel.serverVersion")
+          cp "dist/decibeltools-${bundle}.mcpb" dist/decibeltools.mcpb
+          echo "bundle=${bundle}" >> "$GITHUB_OUTPUT"
+          echo "version=${server}" >> "$GITHUB_OUTPUT"
 
       - uses: softprops/action-gh-release@v2
         if: startsWith(github.ref, 'refs/tags/')
         with:
-          files: dist/decibel.mcpb
+          files: dist/decibeltools.mcpb
           generate_release_notes: true
           body: |
-            Decibel for Claude Desktop — server ${{ steps.asset.outputs.version }}.
+            Decibel Tools ${{ steps.asset.outputs.bundle }} for Claude Desktop — server ${{ steps.asset.outputs.version }}.
 
-            **Install:** download `decibel.mcpb` below, double-click it, pick your
+            **Install:** download `decibeltools.mcpb` below, double-click it, pick your
             project folder, click Install. Then fully quit Claude Desktop (⌘Q /
             Alt+F4) and reopen.
 
@@ -50,5 +54,5 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: decibel-mcpb
-          path: dist/decibel.mcpb
+          name: decibeltools-mcpb
+          path: dist/decibeltools.mcpb

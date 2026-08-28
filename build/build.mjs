@@ -160,7 +160,7 @@ run('npx', ['--yes', '@anthropic-ai/mcpb', 'validate', 'manifest.json']);
 
 step('Packing bundle');
 fs.mkdirSync(path.join(ROOT, 'dist'), { recursive: true });
-const out = path.join('dist', `decibel-${version}.mcpb`);
+const out = path.join('dist', `decibeltools-${version}.mcpb`);
 run('npx', ['--yes', '@anthropic-ai/mcpb', 'pack', '.', out]);
 
 const sizeMb = (fs.statSync(path.join(ROOT, out)).size / 1024 / 1024).toFixed(1);
