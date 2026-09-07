@@ -6,15 +6,28 @@ One-click install for [Decibel](https://github.com/decibelsystems/decibel-tools-
 
 ## Install (Claude Desktop)
 
+**0.** **Install Node.js 18 or newer** if you don't have it — [nodejs.org](https://nodejs.org). Check with `node --version`.
+
 **1.** Download **`decibeltools.mcpb`** from [the latest release](https://github.com/mediareason/decibel-installer/releases/latest).
 
 **2.** Double-click it. Claude Desktop opens and asks you to confirm.
 
 **3.** Pick the folder you want Decibel to track, then click **Install**.
 
-That's it. Quit Claude Desktop completely (**⌘Q** on Mac, **Alt+F4** on Windows — closing the window isn't enough) and reopen it.
+**4.** Quit Claude Desktop **completely** — **⌘Q** on Mac; on Windows, end every Claude process in Task Manager, because closing the window leaves one running. Then reopen it.
 
-You don't need Node.js, a terminal, admin rights, or a config file. Claude Desktop ships its own Node runtime and the bundle brings everything else.
+You don't need a terminal, admin rights, or a config file. The bundle brings the server and all its dependencies.
+
+> **Node.js is a real prerequisite, despite what Anthropic's docs say.**
+> Claude Desktop does **not** ship a Node runtime — v1.34493.1 contains only
+> native `.node` addons, no node executable — and this bundle's manifest
+> launches `node`, which is a PATH lookup. If Node is missing, the extension
+> installs successfully and then exposes **no tools at all**, with no error
+> anywhere in the UI. That silent-success failure is the single most likely
+> thing to go wrong, so rule it out first.
+>
+> Installing Node *after* Claude Desktop is already running does not help on
+> Windows: PATH is fixed at process start. End all Claude processes and relaunch.
 
 ### Check it worked
 
