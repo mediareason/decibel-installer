@@ -1,12 +1,12 @@
 {
   "name": "decibel-installer",
-  "version": "2.1.7",
+  "version": "3.0.0",
   "private": true,
   "type": "module",
   "description": "One-click installers for Decibel \u2014 MCPB bundle for Claude Desktop, native installer for everything else.",
   "license": "MIT",
   "decibel": {
-    "serverVersion": "2.1.4"
+    "serverVersion": "3.0.0"
   },
   "scripts": {
     "build": "node build/build.mjs",
