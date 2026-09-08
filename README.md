@@ -8,7 +8,7 @@ One-click install for [Decibel](https://github.com/decibelsystems/decibel-tools-
 
 **0.** **Install Node.js 18 or newer** if you don't have it — [nodejs.org](https://nodejs.org). Check with `node --version`.
 
-**1.** Download **`decibeltools.mcpb`** from [the latest release](https://github.com/mediareason/decibel-installer/releases/latest).
+**1.** Download **`decibeltools.mcpb`** from [the latest release](https://github.com/decibelsystems/decibeltools-installer/releases/latest).
 
 **2.** Double-click it. Claude Desktop opens and asks you to confirm.
 
